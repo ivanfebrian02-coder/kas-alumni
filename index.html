@@ -2769,6 +2769,7 @@ z-index:1000;
   </div>
 </div>
   <div id="installBanner" style="
+<div id="installBanner" style="
 position:fixed;
 top:10px;
 left:10px;
@@ -2849,7 +2850,7 @@ if(isApp || localStorage.getItem("hideBanner")==="true"){
 
 // tombol download
 function downloadApp(){
-  window.location.href = "/app/kas-alumni.apk";
+  window.open("https://github.com/ivanfebrian02-coder/kas-alumni/releases/download/v1/kas-alumni.apk","_blank");
 }
 
 // tombol close
@@ -2858,18 +2859,21 @@ function closeBanner(){
   localStorage.setItem("hideBanner","true");
 }
 
-// auto hide saat scroll
-let lastScroll = 0;
-window.addEventListener("scroll", () => {
-  let current = window.scrollY;
+// 🔥 FIX SCROLL DETECTION
+let lastScroll = window.pageYOffset;
 
-  if(current > lastScroll){
-    banner.style.top = "-100px"; // sembunyi
-  }else{
-    banner.style.top = "10px"; // muncul lagi
+window.addEventListener("scroll", function(){
+  let currentScroll = window.pageYOffset;
+
+  if(currentScroll > lastScroll){
+    // scroll ke bawah
+    banner.style.top = "-120px";
+  } else {
+    // scroll ke atas
+    banner.style.top = "10px";
   }
 
-  lastScroll = current;
+  lastScroll = currentScroll;
 });
 </script>
 </body></html>
