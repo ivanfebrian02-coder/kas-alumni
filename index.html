@@ -646,6 +646,24 @@ font-weight:600;
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const { createClient } = window.supabase;
+
+const supabaseClient = createClient(
+  "https://ubpbtsmerfohlfkbuphd.supabase.co",
+  "sb_publishable_NLploEl-HgMy4VTr5jCa5Q_3JLiGEZT",
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  }
+);
+
+// 🔥 biar kode lama tetap jalan
+const supabase = supabaseClient;
+</script>
 </head><body>
 <div class="container"><div class="top-header">
 
@@ -1929,47 +1947,6 @@ Berikut saya kirim bukti transfer.`;
   window.open(url,"_blank");
 }
 
-
-function openAdminLogin(){
-document.getElementById("loginModal").style.display="flex";
-}
-
-function unlockAdmin(){
-
-let pass=document.getElementById("adminPassword").value;
-
-if(pass==="bendahara123"){
-
-document.getElementById("loginModal").style.display="none";
-document.getElementById("loginError").style.display="none";
-
-document.getElementById("adminSection").style.display="block";
-adminMode=true;
-render();
-
-}else{
-
-document.getElementById("loginError").style.display="block";
-
-}
-
-}
-
-function togglePassword(){
-
-let input=document.getElementById("adminPassword");
-let eye=document.getElementById("eyeIcon");
-
-if(input.type==="password"){
- input.type="text";
- eye.innerText="🙉";
-}else{
- input.type="password";
- eye.innerText="🙈";
-}
-
-}
-
 function setFilter(type){
 
  let range=document.getElementById('rangePicker');
@@ -2045,6 +2022,7 @@ showPage('dashboardSection');
 
 load();
 initRunningText();
+checkSession();
 
 function showPage(id){
 
@@ -2265,29 +2243,13 @@ function showToast(msg){
 }
 
 function closeLogin(){
+  document.getElementById("loginModal").style.display="none";
 
-document.getElementById("loginModal").style.display="none";
-document.getElementById("adminPassword").value="";
-
+  // reset input baru
+  document.getElementById("email").value="";
+  document.getElementById("password").value="";
 }
 
-function loginAdmin(){
-
-let input=document.getElementById("adminPassword");
-let pass=input.value;
-
-if(pass==="bendahara123"){
- adminMode=true;
- closeLogin();
- showPage('adminSection');
- showToast("Mode bendahara aktif");
-}else{
- showAlert("Password salah");
-}
-
-input.value=""; // reset password
-
-}
 document.addEventListener("click",function(e){
 
 let overlay=document.getElementById("alertOverlay");
@@ -2326,8 +2288,30 @@ laporanBox.style.display="none";
 <div style="font-size:18px;font-weight:700;margin-bottom:8px">
 🔒 Login Bendahara
 </div>
-<div style="font-size:13px;opacity:.7;margin-bottom:14px">Masukkan password untuk masuk mode bendahara</div><div style="position:relative;margin-bottom:12px"><input id="adminPassword" type="password"
-placeholder="Masukkan password"
+
+<div style="font-size:13px;opacity:.7;margin-bottom:14px">
+Masukkan email & password
+</div>
+
+<!-- 🔥 EMAIL -->
+<div style="margin-bottom:10px">
+<input id="email" type="email"
+placeholder="Email"
+style="
+width:100%;
+padding:12px 14px;
+border-radius:14px;
+border:1px solid #E5E7EB;
+background:#F2F2F7;
+color:#111;
+font-size:14px;
+">
+</div>
+
+<!-- 🔥 PASSWORD -->
+<div style="position:relative;margin-bottom:12px">
+<input id="password" type="password"
+placeholder="Password"
 style="
 width:100%;
 padding:12px 14px;
@@ -2338,13 +2322,27 @@ color:#111;
 font-size:14px;
 ">
 
-<span id="eyeIcon" onclick="togglePassword()" 
+<span onclick="togglePassword()" 
 style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px;opacity:.7"> 🙈 </span>
+</div>
+
+<button onclick="login()" style="
+width:100%;
+padding:12px;
+border:none;
+border-radius:14px;
+background:#22c55e;
+color:white;
+font-weight:600;
+">
+Masuk
+</button>
+
+<div onclick="closeLogin()" style="margin-top:10px;text-align:center;font-size:13px;opacity:.7;cursor:pointer">
+Batal
+</div>
 
 </div>
-<button onclick="loginAdmin()">Masuk</button>
-
-<div onclick="closeLogin()" style="margin-top:10px;text-align:center;font-size:13px;opacity:.7;cursor:pointer">Batal</div></div>
 </div><div class="bottom-nav">
 
 <button class="active" onclick="showPage('dashboardSection')">
@@ -2770,22 +2768,23 @@ z-index:1000;
 </div>
 <div id="installBanner" style="
 position:fixed;
-top:10px;
-left:10px;
-right:10px;
+top:12px;
+left:12px;
+right:12px;
 background:linear-gradient(135deg,#22c55e,#16a34a);
 color:white;
 display:flex;
 align-items:center;
 justify-content:space-between;
 padding:12px 14px;
-border-radius:14px;
-z-index:9999;
+border-radius:16px;
+z-index:999999;
 box-shadow:0 10px 25px rgba(0,0,0,0.2);
 font-family:Inter, sans-serif;
 transition:top 0.3s ease;
 ">
 
+  <!-- kiri -->
   <div style="display:flex;align-items:center;gap:10px;">
     
     <div style="
@@ -2797,11 +2796,11 @@ transition:top 0.3s ease;
     align-items:center;
     justify-content:center;
     ">
-      <img src="logo.png" style="width:24px;height:24px;border-radius:6px;">
+      <img src="logo.png" style="width:22px;height:22px;border-radius:6px;">
     </div>
 
     <div>
-      <div style="font-size:13px;opacity:0.9;">
+      <div style="font-size:12px;opacity:0.8;">
         Kas Alumni
       </div>
       <div style="font-size:14px;font-weight:600;">
@@ -2811,19 +2810,21 @@ transition:top 0.3s ease;
 
   </div>
 
+  <!-- kanan -->
   <div style="display:flex;align-items:center;gap:8px;">
     
-    <button onclick="downloadApp()" style="
-    background:white;
-    color:#16a34a;
-    border:none;
-    padding:6px 12px;
-    border-radius:8px;
-    font-size:13px;
-    font-weight:600;
-    ">
-      Install
-    </button>
+    <a href="https://github.com/ivanfebrian02-coder/kas-alumni/releases/download/v1/kas-alumni.apk"
+       style="
+       background:white;
+       color:#16a34a;
+       padding:6px 12px;
+       border-radius:8px;
+       font-size:13px;
+       font-weight:600;
+       text-decoration:none;
+       ">
+       Install
+    </a>
 
     <span onclick="closeBanner()" style="
     font-size:18px;
@@ -2834,47 +2835,98 @@ transition:top 0.3s ease;
     </span>
 
   </div>
+
 </div>
 
 <script>
-let banner = document.getElementById("installBanner");
+window.onload = function(){
 
-// 🔥 JANGAN langsung hide dulu
-let isApp = false;
+  var banner = document.getElementById("installBanner");
+  if(!banner) return;
 
-// kasih delay biar pasti kebaca
-setTimeout(()=>{
-  isApp = navigator.userAgent.includes("KasAlumniApp");
-
-  if(isApp || localStorage.getItem("hideBanner")==="true"){
+  // hide kalau pernah ditutup
+  if(localStorage.getItem("hideBanner")==="true"){
     banner.style.display="none";
   }
-}, 500);
 
-// tombol download
-function downloadApp(){
-  window.location.href = "https://github.com/ivanfebrian02-coder/kas-alumni/releases/download/v1/kas-alumni.apk";
-}
-
-// tombol close
-function closeBanner(){
-  banner.style.display="none";
-  localStorage.setItem("hideBanner","true");
-}
-
-// scroll hide
-let lastScroll = window.pageYOffset;
-
-window.addEventListener("scroll", function(){
-  let currentScroll = window.pageYOffset;
-
-  if(currentScroll > lastScroll){
-    banner.style.top = "-120px";
-  } else {
-    banner.style.top = "10px";
+  // tombol close
+  window.closeBanner = function(){
+    banner.style.display = "none";
+    localStorage.setItem("hideBanner","true");
   }
 
-  lastScroll = currentScroll;
-});
+  // scroll hide
+  var lastScroll = window.pageYOffset;
+
+  window.addEventListener("scroll", function(){
+    var current = window.pageYOffset;
+
+    if(current > lastScroll){
+      banner.style.top = "-120px";
+    } else {
+      banner.style.top = "12px";
+    }
+
+    lastScroll = current;
+  });
+
+};
+</script>
+<script>
+function openAdminLogin(){
+  document.getElementById("loginModal").style.display="flex";
+}
+
+async function login(){
+  try {
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email, password
+    });
+
+    if(error){
+      if(error.message.includes("Invalid login credentials")){
+        alert("Email atau password salah ❌");
+      } else {
+        alert("Terjadi kesalahan, coba lagi");
+      }
+      return;
+    }
+
+    // ✅ LOGIN BERHASIL
+    adminMode = true;
+    closeLogin();
+    showPage('adminSection');
+    showToast("Mode bendahara aktif");
+
+  } catch (err) {
+    console.error(err);
+    alert("Terjadi error, coba lagi ⚠️");
+  }
+}
+
+function togglePassword(){
+  let input=document.getElementById("password");
+  let eye=document.getElementById("eyeIcon");
+
+  if(input.type==="password"){
+    input.type="text";
+    eye.innerText="🙉";
+  }else{
+    input.type="password";
+    eye.innerText="🙈";
+  }
+}
+async function cekLogin(){
+  const { data } = await supabaseClient.auth.getSession();
+
+  if(data.session){
+    adminMode = true;
+  }else{
+    adminMode = false;
+  }
+}
 </script>
 </body></html>
