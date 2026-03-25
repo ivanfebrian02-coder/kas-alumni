@@ -2840,13 +2840,17 @@ transition:top 0.3s ease;
 <script>
 let banner = document.getElementById("installBanner");
 
-// deteksi APK
-let isApp = navigator.userAgent.includes("KasAlumniApp");
+// 🔥 JANGAN langsung hide dulu
+let isApp = false;
 
-// hide kalau di APK atau udah di-close
-if(isApp || localStorage.getItem("hideBanner")==="true"){
-  banner.style.display="none";
-}
+// kasih delay biar pasti kebaca
+setTimeout(()=>{
+  isApp = navigator.userAgent.includes("KasAlumniApp");
+
+  if(isApp || localStorage.getItem("hideBanner")==="true"){
+    banner.style.display="none";
+  }
+}, 500);
 
 // tombol download
 function downloadApp(){
@@ -2859,18 +2863,16 @@ function closeBanner(){
   localStorage.setItem("hideBanner","true");
 }
 
-// 🔥 FIX SCROLL DETECTION
+// scroll hide
 let lastScroll = window.pageYOffset;
 
 window.addEventListener("scroll", function(){
   let currentScroll = window.pageYOffset;
 
   if(currentScroll > lastScroll){
-    // scroll ke bawah
     banner.style.top = "-120px";
   } else {
-    // scroll ke atas
-    banner.style.top = "11px";
+    banner.style.top = "10px";
   }
 
   lastScroll = currentScroll;
