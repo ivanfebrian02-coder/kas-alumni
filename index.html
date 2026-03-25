@@ -2786,7 +2786,6 @@ transition:top 0.3s ease;
 
   <!-- kiri -->
   <div style="display:flex;align-items:center;gap:10px;">
-    
     <div style="
     width:36px;
     height:36px;
@@ -2796,7 +2795,7 @@ transition:top 0.3s ease;
     align-items:center;
     justify-content:center;
     ">
-      <img src="logo.png" style="width:22px;height:22px;border-radius:6px;">
+      <img src="/logo.png" style="width:22px;height:22px;border-radius:6px;">
     </div>
 
     <div>
@@ -2807,13 +2806,12 @@ transition:top 0.3s ease;
         Install aplikasi biar lebih cepat
       </div>
     </div>
-
   </div>
 
   <!-- kanan -->
   <div style="display:flex;align-items:center;gap:8px;">
-    
-    <a href="https://github.com/ivanfebrian02-coder/kas-alumni/releases/download/v1/kas-alumni.apk"
+    <a href="/kas-alumni.apk"
+       target="_blank" rel="noopener noreferrer"
        style="
        background:white;
        color:#16a34a;
@@ -2833,14 +2831,12 @@ transition:top 0.3s ease;
     ">
       ✕
     </span>
-
   </div>
 
 </div>
 
 <script>
 window.onload = function(){
-
   var banner = document.getElementById("installBanner");
   if(!banner) return;
 
@@ -2855,21 +2851,27 @@ window.onload = function(){
     localStorage.setItem("hideBanner","true");
   }
 
-  // scroll hide
+  // scroll hide dengan throttle supaya smooth di HP
   var lastScroll = window.pageYOffset;
+  var ticking = false;
 
   window.addEventListener("scroll", function(){
-    var current = window.pageYOffset;
+    if(!ticking){
+      window.requestAnimationFrame(function(){
+        var current = window.pageYOffset;
 
-    if(current > lastScroll){
-      banner.style.top = "-120px";
-    } else {
-      banner.style.top = "12px";
+        if(current > lastScroll + 5){ // scroll down
+          banner.style.top = "-120px";
+        } else if(current < lastScroll - 5){ // scroll up
+          banner.style.top = "12px";
+        }
+
+        lastScroll = current;
+        ticking = false;
+      });
+      ticking = true;
     }
-
-    lastScroll = current;
   });
-
 };
 </script>
 <script>
